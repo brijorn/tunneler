@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const Version = "v1.0.0"
+const Version = "v1.0.1"
 
 func handleT(w http.ResponseWriter, r *http.Request) {
 	dc, err := net.DialTimeout("tcp", r.Host, 10*time.Second)

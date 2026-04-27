@@ -27,6 +27,9 @@ jobs:
           - os: linux
             arch: arm64
             ext: ""
+          - os: android
+            arch: arm64
+            ext: ""
     
     steps:
     - uses: actions/checkout@v4
@@ -45,7 +48,7 @@ jobs:
 
     - name: Build Binary
       run: |
-        GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o tunneler-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }} main.go
+        CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o tunneler-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }} main.go
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
