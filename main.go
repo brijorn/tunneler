@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"io"
@@ -10,7 +11,25 @@ import (
 	"time"
 )
 
-const Version = "v1.0.1"
+const Version = "v1.0.2"
+
+func init() {
+	// Termux/Android has no usable /etc/resolv.conf and we build with
+	// CGO_ENABLED=0, so Go's resolver falls back to [::1]:53. Pin a public
+	// resolver so DNS works on every platform.
+	r := &net.Resolver{
+		PreferGo: true,
+		Dial: func(ctx context.Context, network, _ string) (net.Conn, error) {
+			d := net.Dialer{Timeout: 5 * time.Second}
+			return d.DialContext(ctx, "udp", "1.1.1.1:53")
+		},
+	}
+	net.DefaultResolver = r
+	http.DefaultTransport.(*http.Transport).DialContext = (&net.Dialer{
+		Timeout:  10 * time.Second,
+		Resolver: r,
+	}).DialContext
+}
 
 func handleT(w http.ResponseWriter, r *http.Request) {
 	dc, err := net.DialTimeout("tcp", r.Host, 10*time.Second)
